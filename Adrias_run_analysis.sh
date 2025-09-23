@@ -2,8 +2,8 @@
 set -euo pipefail
 
 # Compilar o executável com otimizações
-# Observação: usamos C++11 conforme pedido, mas o código compila também com C++17
-if ! g++ knapSA_incompleto.cpp -o knapSA -O3 -std=c++11; then
+# Observação: o código compila também com C++17
+if ! g++ Adrias_knapSA.cpp -o knapSA -O3 -std=c++11; then
   echo "Falha na compilação" >&2
   exit 1
 fi

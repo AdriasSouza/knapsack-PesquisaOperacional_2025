@@ -1,12 +1,12 @@
 # PowerShell script to compile and run knapsack analysis across all instances
-# Usage: run in the repository root (same folder as knapSA_incompleto.cpp)
+# Usage: run in the repository root (same folder as Adrias_knapSA.cpp)
 # Requirements: PowerShell 5+, g++ available in PATH (e.g., MinGW or similar)
 
 $ErrorActionPreference = 'Stop'
 
-Write-Host 'Compilando knapSA_incompleto.cpp...'
+Write-Host 'Compilando Adrias_knapSA.cpp...'
 # Compila com otimizações e C++11 conforme solicitado
-& g++ knapSA_incompleto.cpp -o knapSA -O3 -std=c++11
+& g++ Adrias_knapSA.cpp -o knapSA -O3 -std=c++11
 if ($LASTEXITCODE -ne 0) {
     Write-Error 'Falha na compilação.'
     exit 1
