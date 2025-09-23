@@ -26,61 +26,15 @@ void readFile(const char* fileName);
 // size = número de itens lidos do arquivo; maxWeight = capacidade da mochila
 int **itens, size=-1, maxWeight=-1; //[profit, weight]
 
-// Gerador global para SA e tweak, com semente configurável via flags
-static std::mt19937 rng;
-
 int main(const int argc, const char **inputFile){
-	char fileName[512]="";
+	char fileName[100]="";
 	
 	// Leitura do arquivo via argumento de linha de comando
 	if(argc < 2){ // verifica se foi passado um argumento (caminho do arquivo)
-		fprintf(stderr,"use: knapSA <input file> [--init <temp>] [--alpha <a>] [--final <temp>] [--seed <n>]\n\n");
+		fprintf(stderr,"use: knapSA <input file>\n\n");
 		exit(1);
-	}
-
-	// Defaults do SA
-	double initialTemp = 10000.0;
-	double finalTemp = 0.1;
-	double alpha = 0.99; // cooling rate
-	unsigned int saSeed = 0; // 0 indica que vamos sortear via random_device
-
-	// Parsing simples de flags: primeiro argumento não iniciando com '-' é o arquivo; demais são flags
-	bool fileSet = false;
-	for(int i=1; i<argc; ++i){
-		const char* arg = inputFile[i];
-		if(arg[0] == '-'){
-			if(strcmp(arg, "--init") == 0 || strcmp(arg, "-t") == 0){
-				if(i+1 >= argc){ fprintf(stderr, "Falta valor para %s\n", arg); exit(1);} 
-				initialTemp = atof(inputFile[++i]);
-			}else if(strcmp(arg, "--alpha") == 0 || strcmp(arg, "-a") == 0){
-				if(i+1 >= argc){ fprintf(stderr, "Falta valor para %s\n", arg); exit(1);} 
-				alpha = atof(inputFile[++i]);
-			}else if(strcmp(arg, "--final") == 0 || strcmp(arg, "-f") == 0){
-				if(i+1 >= argc){ fprintf(stderr, "Falta valor para %s\n", arg); exit(1);} 
-				finalTemp = atof(inputFile[++i]);
-			}else if(strcmp(arg, "--seed") == 0 || strcmp(arg, "-s") == 0){
-				if(i+1 >= argc){ fprintf(stderr, "Falta valor para %s\n", arg); exit(1);} 
-				long long sv = atoll(inputFile[++i]);
-				if(sv < 0) sv = -sv;
-				saSeed = (unsigned int)(sv % 4294967295ULL);
-			}else{
-				fprintf(stderr, "Flag desconhecida: %s\n", arg);
-				exit(1);
-			}
-		}else{
-			if(!fileSet){
-				strncpy(fileName, arg, sizeof(fileName)-1);
-				fileName[sizeof(fileName)-1] = '\0';
-				fileSet = true;
-			}else{
-				// Ignora argumentos posicionais extras
-			}
-		}
-	}
-
-	if(!fileSet){
-		fprintf(stderr, "Erro: caminho do arquivo de entrada não informado.\n");
-		exit(1);
+	}else{
+		strcpy(fileName,inputFile[1]); // lê o nome do arquivo a partir de argv[1]
 	}
 
 	readFile(fileName);
@@ -135,13 +89,16 @@ int main(const int argc, const char **inputFile){
 // 	S.A.
 	//implement simulated annealing
 
-	// Inicializa semente do gerador aleatório (global)
-	if(saSeed == 0){
-		std::random_device rd;
-		saSeed = rd();
-	}
-	rng.seed(saSeed);
-	// Distribuição uniforme [0,1) para o critério de aceitação probabilístico
+	// Parâmetros do Simulated Annealing (SA)
+	// initialTemp: temperatura inicial alta para permitir aceitar piores soluções no começo
+	// finalTemp: temperatura final baixa para convergência
+	// alpha: taxa de resfriamento (geométrica)
+	double initialTemp = 10000.0;
+	double finalTemp = 0.1;
+	double alpha = 0.99; // cooling rate
+
+	// Gerador aleatório e distribuição uniforme [0,1) para o critério de aceitação probabilístico
+	static std::mt19937 rng(std::random_device{}());
 	std::uniform_real_distribution<double> urand(0.0, 1.0);
 
 	// Solução atual e vizinha; começamos a busca a partir da solução gulosa
@@ -190,13 +147,14 @@ int main(const int argc, const char **inputFile){
 	auto saEnd = std::chrono::high_resolution_clock::now();
 	auto saMs = std::chrono::duration_cast<std::chrono::milliseconds>(saEnd - saStart).count();
 	long long totalMs = static_cast<long long>(greedyMs + saMs);
-	// Saída CSV: caminho_da_instancia, lucro_guloso, lucro_sa, tempo_guloso_ms, tempo_sa_ms, tempo_total_ms, init, alpha, final, seed
-	printf("%s,%d,%d,%lld,%lld,%lld,%.6f,%.6f,%.6f,%u\n", fileName, greedyProfit, saProfit, (long long)greedyMs, (long long)saMs, totalMs, initialTemp, alpha, finalTemp, (unsigned int)saSeed);
+	// Saída CSV: caminho_da_instancia, lucro_guloso, lucro_sa, tempo_guloso_ms, tempo_sa_ms, tempo_total_ms
+	printf("%s,%d,%d,%lld,%lld,%lld\n", inputFile[1], greedyProfit, saProfit, (long long)greedyMs, (long long)saMs, totalMs);
 
 }
 void tweak(bool *sol){
 	// Mutação do tipo "bit flip": escolhe um índice aleatório e inverte o bit
 	// true -> false (remove item) ou false -> true (adiciona item)
+	static std::mt19937 rng(std::random_device{}());
 	if(size <= 0) return;
 	std::uniform_int_distribution<int> dist(0, size - 1);
 	int idx = dist(rng);
