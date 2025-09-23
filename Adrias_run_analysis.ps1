@@ -5,7 +5,7 @@
 $ErrorActionPreference = 'Stop'
 
 Write-Host 'Compilando Adrias_knapSA.cpp...'
-# Compila com otimizações e C++11 conforme solicitado
+# Compila com otimizações e C++11
 & g++ Adrias_knapSA.cpp -o knapSA -O3 -std=c++11
 if ($LASTEXITCODE -ne 0) {
     Write-Error 'Falha na compilação.'
