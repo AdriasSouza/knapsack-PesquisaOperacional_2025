@@ -1,0 +1,41 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "build knapsack cpp",
+			"type": "shell",
+			"command": "g++ -O2 -std=c++17 -Wall -Wextra -o knapSA knapSA_incompleto.cpp",
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "build knapsack cpp",
+			"type": "shell",
+			"command": "g++ -O2 -std=c++17 -Wall -Wextra -o knapSA knapSA_incompleto.cpp",
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "build knapsack cpp",
+			"type": "shell",
+			"command": "g++ -O2 -std=c++17 -Wall -Wextra -o knapSA knapSA_incompleto.cpp",
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		},
+		{
+			"label": "build knapsack cpp",
+			"type": "shell",
+			"command": "g++ -O2 -std=c++17 -Wall -Wextra -o knapSA knapSA_incompleto.cpp",
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
+		}
+	]
+}
