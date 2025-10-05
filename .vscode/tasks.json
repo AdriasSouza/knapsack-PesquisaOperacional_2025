@@ -36,6 +36,15 @@
 				"$gcc"
 			],
 			"group": "build"
+		},
+		{
+			"label": "build Adrias_knapSA cpp",
+			"type": "shell",
+			"command": "g++ -O2 -std=c++17 -Wall -Wextra -o Adrias_knapSA Adrias\\Adrias_knapSA.cpp",
+			"problemMatcher": [
+				"$gcc"
+			],
+			"group": "build"
 		}
 	]
 }

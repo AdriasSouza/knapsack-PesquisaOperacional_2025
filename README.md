@@ -6,14 +6,19 @@ Este projeto foi desenvolvido como parte da avaliação da disciplina de **Pesqu
 
 ## Sobre o projeto
 
-Este repositório contém uma ferramenta de linha de comando em C++ para resolver o **Problema da Mochila 0-1 (0-1 Knapsack Problem)** e produzir resultados em **formato CSV**, facilitando a análise em lote.
+Este repositório contém uma ferramenta de linha de comando em C++ para resolver o **Problema da Mochila 0-1 (0-1 Knapsack Problem)** e produzir resultados em **formato CSV**, facilitando a análise em lote. A implementação de referência está em `Adrias/Adrias_knapSA.cpp`.
 
 - Conjunto de testes: foram utilizadas **3.240 instâncias de alta complexidade**, propostas no artigo “A new class of hard problem instances for the 0-1 knapsack problem”.
 - Algoritmos implementados em C++:
-  - **Busca Gulosa (Greedy Search)**: heurística que prioriza itens com a maior **razão lucro/peso**.
-  - **Simulated Annealing (S.A.)**: meta-heurística com mutação do tipo **bit flip** para escapar de ótimos locais. Parâmetros padrão: temperatura inicial 10.000, taxa de resfriamento (alpha) 0,99, temperatura final 0,1.
-- A aplicação foi estruturada para análise em lote: lê o caminho da instância via argumento e emite **uma linha CSV por execução**.
-- A implementação atual também registra os **tempos de execução** (em milissegundos) do Greedy e do S.A., além do tempo total.
+  - **Busca Gulosa (Greedy)**: ordena por razão **lucro/peso** (decrescente) e seleciona enquanto houver capacidade. Desempate por maior lucro e, depois, menor peso.
+  - **Simulated Annealing (SA)**: busca estocástica com aceitação por Metropolis. Nesta versão:
+    - A solução inicial do SA é **zerada** (não utiliza a gulosa como base).
+    - A avaliação usa **score penalizado**: score = lucro − coef_penal × excessoDePeso.
+    - O coeficiente de penalidade é derivado da média lucro/peso dos itens (multiplicada por 10.0), podendo ser ajustado no código.
+    - Operador de vizinhança: **bit flip** de 1 bit, com 10% de chance de flipar **2 bits distintos**.
+    - Parâmetros padrão: temperatura inicial 10.000, alpha 0,99, temperatura final 0,1; RNG `std::mt19937` sem semente fixa (usa `random_device`).
+- A aplicação lê o caminho da instância via argumento e emite **uma linha CSV por execução**.
+- A implementação registra os **tempos de execução** (ms) do Greedy e do SA, além do tempo total.
 
 > Fonte dos datasets: [knapsackProblemInstances](https://github.com/JorikJooken/knapsackProblemInstances)
 
@@ -29,20 +34,20 @@ Este repositório contém uma ferramenta de linha de comando em C++ para resolve
 1. Conceda permissão de execução ao script:
 
 ```bash
-chmod +x run_analysis.sh
+chmod +x Adrias/Adrias_run_analysis.sh
 ```
 
-2. Execute a análise:
+1. Execute a análise:
 
 ```bash
-./run_analysis.sh
+./Adrias/Adrias_run_analysis.sh
 ```
 
 #### O que o script faz
 
-- Compila o código C++ (`knapSA_incompleto.cpp`) gerando o executável `knapSA`.
-- Cria (ou limpa) o arquivo `resultados.csv` com o cabeçalho apropriado.
-- Localiza todas as instâncias `test.in` dentro de `problemInstances/` e executa `./knapSA <instância>` para cada uma das **3.240** instâncias, exibindo o progresso no terminal.
+- Compila `Adrias/Adrias_knapSA.cpp` (otimizações) e gera `knapSA` no diretório raiz.
+- Cria (ou limpa) o arquivo `resultados.csv` com o cabeçalho apropriado (6 colunas).
+- Localiza todas as instâncias `test.in` em `problemInstances/` e executa `./knapSA <instância>` para cada uma, exibindo progresso.
 - Anexa a saída (uma linha CSV por instância) ao arquivo `resultados.csv`.
 
 ### Execução em lote (Windows PowerShell)
@@ -50,10 +55,10 @@ chmod +x run_analysis.sh
 1) Execute o script PowerShell:
 
 ```powershell
-./run_analysis.ps1
+./Adrias/Adrias_run_analysis.ps1
 ```
 
-O script compila, executa todas as instâncias e gera o mesmo `resultados.csv` com cabeçalho.
+O script compila, executa todas as instâncias e gera o `resultados.csv` (6 colunas) no diretório raiz.
 
 ### Execução manual (uma instância)
 
@@ -61,13 +66,13 @@ Compilar e executar diretamente:
 
 ```bash
 # Exemplo (Bash):
-g++ -O2 -std=c++17 -Wall -Wextra -o knapSA knapSA_incompleto.cpp
+g++ -O2 -std=c++17 -Wall -Wextra -o knapSA Adrias/Adrias_knapSA.cpp
 ./knapSA problemInstances/n_400_c_1000000_g_14_f_0.1_eps_0_s_100/test.in
 ```
 
 ```powershell
 # Exemplo (PowerShell):
-g++ -O2 -std=c++17 -Wall -Wextra -o knapSA knapSA_incompleto.cpp
+g++ -O2 -std=c++17 -Wall -Wextra -o knapSA Adrias/Adrias_knapSA.cpp
 ./knapSA.exe "problemInstances/n_400_c_1000000_g_14_f_0.1_eps_0_s_100/test.in"
 ```
 
@@ -75,13 +80,7 @@ g++ -O2 -std=c++17 -Wall -Wextra -o knapSA knapSA_incompleto.cpp
 
 Ao final, todos os resultados estarão consolidados em `resultados.csv`.
 
-- Estrutura base (requisito mínimo):
-
-```text
-instancia,lucro_guloso,lucro_sa
-```
-
-- Estrutura efetivamente produzida pela implementação atual (inclui tempos de execução em milissegundos):
+- Estrutura produzida pela implementação atual (inclui tempos de execução em milissegundos):
 
 ```text
 instancia,lucro_guloso,lucro_sa,tempo_guloso_ms,tempo_sa_ms,tempo_total_ms
@@ -104,6 +103,12 @@ Onde:
 
 ## Observações
 
-- Os parâmetros do Simulated Annealing podem ser ajustados no código-fonte (temperatura inicial/final e taxa de resfriamento).
-- Para reprodutibilidade, considere fixar a semente do gerador aleatório (atualmente usa `std::random_device`).
+- Parâmetros do SA podem ser ajustados no código-fonte (`initialTemp`, `finalTemp`, `alpha`) e no cálculo do **coeficiente de penalidade** (média lucro/peso × 10.0 por padrão).
+- Para reprodutibilidade, considere fixar a semente do gerador (atualmente usa `std::random_device`).
 - Os scripts assumem que as instâncias estão no diretório `problemInstances/` e possuem arquivos chamados `test.in`.
+
+### Scripts auxiliares
+
+- Há também um script simples para o código de partida (`knapSA_incompleto.cpp`): `run_knapSA_incompleto.ps1`.
+  - Ele compila, executa e extrai os lucros de Greedy e SA da saída textual, gerando `resultados_incompleto.csv`.
+  - Use apenas se precisar comparar com a versão incompleta; a versão principal para análise em lote é `Adrias/Adrias_knapSA.cpp` com os scripts de `Adrias/`.

@@ -22,15 +22,13 @@ int **itens, size=-1, maxWeight=-1; //[profit, weight]
 
 int main(const int argc, const char **inputFile){
 	char fileName[100]="";
-		
-	// if(argc < 2){ //verify if an argument was passed (the first argument in C is the name of the executable)
-	// 	fprintf(stderr,"use: knapSA <input file>\n\n");
-	// 	exit(1);
-	// }else
-	// 	strcpy(fileName,inputFile[1]);//read filename from stdin
-	
-	strcpy(fileName,"problemInstances/n_400_c_1000000_g_14_f_0.1_eps_0_s_100/test.in");//put a fixed filename  - 1005410
-	// strcpy(fileName,"problemInstances/n_1200_c_1000000_g_14_f_0.1_eps_0_s_100/test.in");//put a fixed filename - no solution
+    
+	if(argc < 2){ // verify if an argument was passed (the first argument in C is the name of the executable)
+		fprintf(stderr,"use: knapSA <input file>\n\n");
+		exit(1);
+	}else{
+		strcpy(fileName,inputFile[1]); // read filename from argv
+	}
 
 	readFile(fileName);
 
